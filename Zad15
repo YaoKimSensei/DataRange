@@ -1,0 +1,76 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <list>
+#include <random>
+#include <ctime>
+#include <fstream>
+#include <sstream>
+
+std::fstream file("F:/QtCreator/MyDocuments/kursy_usd_eur.csv", std::fstream::in);
+
+struct Exchange_rate{
+    std::string date;
+    double usd;
+    double eur;
+    std::string table_id;
+};
+
+std::vector<Exchange_rate> rates;
+
+
+///and here
+bool operator< (Exchange_rate &a, const double v ){
+    return a.usd<v;
+}
+bool operator< (const double v ,Exchange_rate &a){
+    return a.usd>v;
+}
+std::ostream& operator<<(std::ostream &out, const Exchange_rate &ex) {
+    return out<<ex.usd;
+}
+///to here
+int main(){
+    if (file.is_open()) {
+        std::string line;
+        std::getline(file, line);
+        while (std::getline(file, line)) {
+            std::stringstream str(line);
+
+            Exchange_rate er;
+            std::getline(str, er.date, ',');
+            std::string double_str;
+            std::getline(str, double_str, ',');
+            er.usd = std::stod(double_str);
+            std::getline(str, double_str, ',');
+            er.eur = std::stod(double_str);
+            std::getline(str, er.table_id, ',');
+            rates.emplace_back(er);
+        }
+}
+    std::cout<<"by USD: \n";
+
+    std::sort(rates.begin(), rates.end(), []( Exchange_rate &a,  Exchange_rate &b){
+        return a.usd>b.usd;
+    });
+
+    for(int i=0; i<10;i++){
+        std::cout<< rates[i].date <<"::"<< rates[i].usd<<std::endl;
+    }
+    std::cout<<std::endl;
+    std::cout<<"by Euro: \n";
+
+    std::sort(rates.begin(), rates.end(), []( Exchange_rate &a, Exchange_rate &b){
+        return a.eur>b.eur;
+    });
+
+    for(int i=0; i<10;i++){
+        std::cout<< rates[i].date<<"::" << rates[i].eur<<std::endl;
+    }
+    std::cout<<"the day is: \n";
+    ///from here
+    std::pair day = std::equal_range(rates.begin(),rates.end(),3.9011);
+    std::cout<<*day.first<<std::endl;
+    std::cout<<*day.second<<std::endl;
+    ///to here
+}
